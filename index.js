@@ -3,8 +3,13 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
 
+const prom = require('prom-client');
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
+
+const collectDefaultMetrics = prom.collectDefaultMetrics;
+collectDefaultMetrics({ prefix: 'forethought' });
 
 // use css
 app.use(express.static("public"));
@@ -42,6 +47,11 @@ app.get("/", function (req, res) {
 });
 
 // listen for connections
-app.listen(8080, function() {
-  console.log('Testing app listening on port 8080')
+app.listen(8000, function() {
+  console.log('Testing app listening on port 8000')
+});
+
+app.get('/metrics', function (req, res) {
+res.set('Content-Type', prom.register.contentType);
+res.end(prom.register.metrics());
 });
